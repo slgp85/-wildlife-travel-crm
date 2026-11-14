@@ -1,81 +1,92 @@
-# CLAUDE.md - Project Rules
+# CLAUDE.md - Wildlife Travel in CRM Project Rules
 
-> Rules Claude follows in every conversation.
+> Project-specific rules for Claude Code. Keep implementations simple and minimal.
 
 ---
 
-## Tech Stack
+## Project Overview
 
-- **Backend:** FastAPI + Python 3.11+
-- **Frontend:** React + TypeScript + Vite
-- **Database:** PostgreSQL + SQLAlchemy
-- **Auth:** JWT + Google OAuth
-- **UI:** Chakra UI or Tailwind + Framer Motion
+**Description:** Simple CRM for wildlife travel operators (clients, trips, bookings).
+**Tech Stack:**
+- Backend: FastAPI + Python 3.11+
+- Frontend: React + Vite + TypeScript
+- Database: PostgreSQL + SQLAlchemy
+- Auth: TBD (deferred)
+- UI: Tailwind + shadcn/ui
 
 ---
 
 ## Project Structure
 
 ```
-project/
-├── backend/
-│   ├── app/
-│   │   ├── main.py, config.py, database.py
-│   │   ├── models/, schemas/, routers/, services/, auth/
-│   ├── alembic/
-│   └── tests/
-├── frontend/
-│   └── src/
-│       ├── components/, pages/, hooks/, services/, context/, types/
-├── skills/           # 5 skill files
-├── agents/           # Agent definitions
-└── .claude/commands/ # /generate-prp, /execute-prp
+backend/
+  app/ main.py, config.py, database.py, models/ (client, trip, booking),
+       schemas/, routers/, services/
+  alembic/, tests/, requirements.txt
+frontend/
+  src/ components/, pages/, hooks/, services/, types/
+skills/  agents/  PRPs/  .claude/commands/
 ```
 
 ---
 
 ## Code Standards
 
-### Python
-```python
-# Type hints required
-def get_user(db: Session, user_id: int) -> User:
-    pass
-
-# Async endpoints
-@router.get("/users/{id}")
-async def get_user(id: int, db: Session = Depends(get_db)):
-    pass
-```
-
-### TypeScript
-```typescript
-// Interfaces required - NO any types
-interface User { id: number; email: string; }
-
-const fetchUser = async (id: number): Promise<User> => { ... };
-```
+- Python: type hints required, docstrings on public functions, async endpoints.
+- TypeScript: interfaces for all props and data, NO `any`.
+- Prefer the simplest working solution. No extra features, abstractions or dependencies beyond INITIAL.md.
 
 ---
 
 ## Forbidden
 
 - `print()` → use `logging`
-- Plain passwords → use bcrypt
 - Hardcoded secrets → use env vars
-- `any` type in TypeScript
-- `console.log` in production
-- Inline styles → use UI framework
+- `SELECT *`, skipping input validation
+- `any` type, `console.log` in production
+- Inline styles → use Tailwind/shadcn
 
 ---
 
-## Workflow
+## Module Rules
 
+- Client status: `lead | active | past`
+- Booking status: `pending | confirmed | cancelled`
+- Booking `travelers` must not exceed the trip's remaining capacity
+- Trip `end_date` must be on or after `start_date`
+
+---
+
+## API Conventions
+
+- Prefix `/api/v1/`, plural nouns
+- Status codes: 200, 201, 400, 404, 409 (401 once auth is added)
+
+---
+
+## Environment Variables
+
+```env
+DATABASE_URL=postgresql://user:password@localhost:5432/wildlife_travel_crm
+VITE_API_URL=http://localhost:8000
 ```
-1. Edit INITIAL.md (define product)
-2. /generate-prp INITIAL.md
-3. /execute-prp PRPs/[name]-prp.md
+
+---
+
+## Development Commands
+
+```bash
+cd backend && pip install -r requirements.txt && alembic upgrade head && uvicorn app.main:app --reload
+cd frontend && npm install && npm run dev
+ruff check backend/ && pytest backend/tests -v
+cd frontend && npm run lint && npm run type-check
 ```
+
+---
+
+## Commit Format
+
+`feat(module): ...`, `fix(module): ...`, `refactor`, `test`, `docs`
 
 ---
 
@@ -83,41 +94,7 @@ const fetchUser = async (id: number): Promise<User> => { ... };
 
 | Task | Skill |
 |------|-------|
-| API + Auth | `skills/BACKEND.md` |
-| React + UI | `skills/FRONTEND.md` |
-| Models | `skills/DATABASE.md` |
-| Tests | `skills/TESTING.md` |
-| Docker | `skills/DEPLOYMENT.md` |
-
----
-
-## Agents
-
-| Agent | Role |
-|-------|------|
-| DATABASE-AGENT | Models + migrations |
-| BACKEND-AGENT | API + auth |
-| FRONTEND-AGENT | UI + pages |
-| DEVOPS-AGENT | Docker + CI/CD |
-
----
-
-## Validation
-
-```bash
-ruff check backend/ && pytest
-npm run lint && npm run type-check
-docker-compose build
-```
-
----
-
-## Environment Variables
-
-```env
-DATABASE_URL=postgresql://user:pass@localhost:5432/db
-SECRET_KEY=your-secret-key
-GOOGLE_CLIENT_ID=xxx
-GOOGLE_CLIENT_SECRET=xxx
-VITE_API_URL=http://localhost:8000
-```
+| Models | skills/DATABASE.md |
+| API | skills/BACKEND.md |
+| UI | skills/FRONTEND.md |
+| Tests | skills/TESTING.md |

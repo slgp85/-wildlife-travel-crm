@@ -1,110 +1,141 @@
-# INITIAL.md - Define Your Product
+# INITIAL.md - Wildlife Travel in CRM Product Definition
 
-> Fill this out, then run `/generate-prp INITIAL.md`
+> A simple CRM for wildlife travel operators to manage clients, trips and bookings.
 
 ---
 
 ## PRODUCT
 
-**Name:** [Your product name]
+### Name
+Wildlife Travel in CRM
 
-**Description:** [What does it do? Who is it for?]
+### Description
+A lightweight CRM that helps wildlife tour operators, safari lodges and travel agents track clients, define trips and manage bookings in one place. Base functionality only.
 
-**Type:** SaaS / Marketplace / Platform / API
+### Target User
+Wildlife tour operators, safari lodges and travel agents.
+
+### Type
+- [x] SaaS (Software as a Service)
 
 ---
 
 ## TECH STACK
 
-| Layer | Choice |
-|-------|--------|
-| Backend | FastAPI + Python |
-| Frontend | React + TypeScript + Vite |
-| Database | PostgreSQL |
-| Auth | JWT + Google OAuth |
-| UI | Chakra UI / Tailwind |
-| Payments | None / Stripe / Dodo |
+- [x] Backend: FastAPI + Python 3.11+
+- [x] Frontend: React + Vite + TypeScript
+- [x] Database: PostgreSQL + SQLAlchemy
+- [x] UI: Tailwind + shadcn/ui
+- [ ] Authentication: TBD (deferred; see Module 1)
+- [ ] Payments: none
 
 ---
 
 ## MODULES
 
-### Module 1: Authentication (Built-in)
+### Module 1: Authentication (Placeholder, deferred)
 
-**Models:** User, RefreshToken
-
-**Endpoints:**
-- POST /auth/register, /auth/login, /auth/refresh
-- GET /auth/me, /auth/google
-
-**Pages:** /login, /register, /profile
+Auth method not chosen yet. For now the API runs without login. Add a `user_id` ownership field later when auth is implemented.
 
 ---
 
-### Module 2: [Your Core Module]
-
-**Description:** [What does this module do?]
+### Module 2: Clients
 
 **Models:**
-```
-[ModelName]:
-  - id, user_id (FK)
-  - [field]: [type]
-  - created_at, updated_at
-```
+- Client: id, full_name, email, phone, country, status (lead|active|past), interests, notes, created_at
 
-**Endpoints:**
-```
-GET    /api/[resource]      - List all
-POST   /api/[resource]      - Create
-GET    /api/[resource]/{id} - Get one
-PUT    /api/[resource]/{id} - Update
-DELETE /api/[resource]/{id} - Delete
-```
+**API Endpoints:**
+- GET /api/v1/clients - List (filter by status)
+- POST /api/v1/clients - Create
+- GET /api/v1/clients/{id} - Detail
+- PUT /api/v1/clients/{id} - Update
+- DELETE /api/v1/clients/{id} - Delete
 
-**Pages:**
-```
-/[resource]           - List
-/[resource]/new       - Create
-/[resource]/{id}      - Detail
-/[resource]/{id}/edit - Edit
-```
+**Frontend Pages:**
+- /clients - List with status filter
+- /clients/new, /clients/:id - Create/Edit form
 
 ---
 
-### Module 3: [Another Module]
+### Module 3: Trips
 
-[Same structure as above]
+**Models:**
+- Trip: id, name, destination, start_date, end_date, price, capacity, description
+
+**API Endpoints:**
+- GET/POST /api/v1/trips
+- GET/PUT/DELETE /api/v1/trips/{id}
+
+**Frontend Pages:**
+- /trips - List
+- /trips/new, /trips/:id - Create/Edit form
 
 ---
 
-### Module 4: Dashboard (Optional)
+### Module 4: Bookings
 
-**Pages:** /dashboard, /settings
+**Models:**
+- Booking: id, client_id, trip_id, travelers, status (pending|confirmed|cancelled), total_amount, created_at
+
+**API Endpoints:**
+- GET/POST /api/v1/bookings
+- GET/PUT/DELETE /api/v1/bookings/{id}
+
+**Frontend Pages:**
+- /bookings - List
+- /bookings/new, /bookings/:id - Create/Edit form
+
+---
+
+### Module 5: Dashboard
+
+- GET /api/v1/dashboard - Counts: clients, upcoming trips, bookings by status
+- /dashboard - Simple stat cards and upcoming trips list
 
 ---
 
 ## MVP SCOPE
 
-Must Have:
-- [x] User registration/login
-- [ ] [Core feature 1]
-- [ ] [Core feature 2]
+### Must Have (MVP)
+- [x] CRUD for Clients, Trips, Bookings
+- [x] Link bookings to a client and a trip
+- [x] Dashboard with basic counts
+
+### Nice to Have (Post-MVP)
+- Authentication and multi-user ownership
+- Payments, email notifications, file uploads
+- Admin panel, analytics
 
 ---
 
 ## ACCEPTANCE CRITERIA
 
-- [ ] Users can register and login
-- [ ] Users can CRUD their [resources]
-- [ ] 80%+ test coverage
-- [ ] Docker builds successfully
+- [ ] Clients, trips and bookings can be created, viewed, edited and deleted
+- [ ] A booking cannot exceed trip capacity
+- [ ] Dashboard shows correct counts
+- [ ] All endpoints documented in OpenAPI
+- [ ] Basic backend tests pass (`pytest`)
+- [ ] Frontend TypeScript strict mode passes
 
 ---
 
-## RUN
+## SPECIAL REQUIREMENTS
+
+- [x] Input validation on all endpoints
+- [x] SQL injection prevention (SQLAlchemy ORM only)
+- [ ] Rate limiting (add with auth)
+
+---
+
+## AGENTS
+
+Keep it lean: DATABASE-AGENT, BACKEND-AGENT and FRONTEND-AGENT only. Skip DEVOPS, TEST and REVIEW unless needed.
+
+---
+
+# READY?
 
 ```bash
 /generate-prp INITIAL.md
-/execute-prp PRPs/[name]-prp.md
+/execute-prp PRPs/wildlife-travel-crm-prp.md
 ```
