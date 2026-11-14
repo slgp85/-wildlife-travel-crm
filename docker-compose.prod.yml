@@ -27,6 +27,9 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    ports:
+      # Loopback only: for a host reverse proxy (e.g. nginx) when Caddy is not used.
+      - "127.0.0.1:8100:8000"
 
   frontend:
     build:
@@ -35,8 +38,13 @@ services:
         # Empty = same origin: the browser calls /api/v1 on the site's own domain.
         VITE_API_URL: ""
     restart: unless-stopped
+    ports:
+      - "127.0.0.1:8101:80"
 
+  # Optional HTTPS front door. Enable with: docker compose --profile caddy up -d
+  # Skip it when another web server already owns ports 80/443.
   caddy:
+    profiles: ["caddy"]
     image: caddy:2-alpine
     restart: unless-stopped
     environment:
@@ -51,6 +59,8 @@ services:
     depends_on:
       - backend
       - frontend
+
+# Without Caddy, proxy `/api/` -> 127.0.0.1:8100 and `/` -> 127.0.0.1:8101 from the host web server.
 
 volumes:
   pgdata:

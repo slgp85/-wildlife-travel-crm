@@ -16,3 +16,12 @@ Until the first account exists, sign-up is open to anyone who finds the site. Af
 Update later: `git pull && docker compose -f docker-compose.prod.yml up -d --build`
 
 Backup: `docker compose -f docker-compose.prod.yml exec -T db pg_dump -U crm wildlife_travel_crm > backup.sql`
+
+## Shared server (host nginx already owns ports 80/443)
+
+Caddy is optional (`--profile caddy`). The deployed instance at `/opt/wildlife-crm` runs without it:
+the containers listen on loopback only (backend `127.0.0.1:8100`, frontend `127.0.0.1:8101`) and a separate
+nginx site (`/etc/nginx/sites-available/wildlife-crm`) proxies `/api/` to the backend and everything else to
+the frontend. HTTPS comes from `certbot --nginx -d YOUR_DOMAIN`.
+
+Update: upload the new code to `/opt/wildlife-crm`, then `docker compose -f docker-compose.prod.yml up -d --build`.
