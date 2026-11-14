@@ -1,18 +1,25 @@
-from collections.abc import Generator
+import os
 
-import pytest
-from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import Session, sessionmaker
-from sqlalchemy.pool import StaticPool
+os.environ.setdefault("SECRET_KEY", "test-secret-key-not-for-production-use-0123456789")
 
-import app.models
-from app.database import Base, get_db
-from app.main import app
+from collections.abc import Generator  # noqa: E402
+
+import pytest  # noqa: E402
+from fastapi.testclient import TestClient  # noqa: E402
+from sqlalchemy import create_engine  # noqa: E402
+from sqlalchemy.orm import Session, sessionmaker  # noqa: E402
+from sqlalchemy.pool import StaticPool  # noqa: E402
+
+import app.models  # noqa: E402, F401
+from app.database import Base, get_db  # noqa: E402
+from app.main import app  # noqa: E402
+
+CREDENTIALS = {"email": "admin@example.com", "password": "correct-horse-1", "full_name": "Admin"}
 
 
 @pytest.fixture()
-def client() -> Generator[TestClient, None, None]:
+def anon_client() -> Generator[TestClient, None, None]:
+    """Test client with an empty database and no login."""
     engine = create_engine(
         "sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool
     )
@@ -30,3 +37,11 @@ def client() -> Generator[TestClient, None, None]:
     with TestClient(app) as c:
         yield c
     app.dependency_overrides.clear()
+
+
+@pytest.fixture()
+def client(anon_client: TestClient) -> TestClient:
+    """Test client logged in as the first registered user."""
+    token = anon_client.post("/api/v1/auth/register", json=CREDENTIALS).json()["access_token"]
+    anon_client.headers["Authorization"] = f"Bearer {token}"
+    return anon_client

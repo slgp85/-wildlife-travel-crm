@@ -39,6 +39,21 @@ export type BookingInput = Omit<Booking, "id" | "created_at" | "total_amount"> &
   total_amount?: number;
 };
 
+export interface User {
+  id: number;
+  email: string;
+  full_name: string;
+}
+
+export interface AuthStatus {
+  registration_open: boolean;
+}
+
+export interface TokenResponse {
+  access_token: string;
+  token_type: string;
+}
+
 export interface Dashboard {
   clients_total: number;
   clients_by_status: Record<string, number>;
