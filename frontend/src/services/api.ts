@@ -84,6 +84,15 @@ export const authApi = {
   register: async (email: string, password: string, full_name: string): Promise<TokenResponse> =>
     (await api.post<TokenResponse>("/auth/register", { email, password, full_name })).data,
   me: async (): Promise<User> => (await api.get<User>("/auth/me")).data,
+  listUsers: async (): Promise<User[]> => (await api.get<User[]>("/auth/users")).data,
+  createUser: async (email: string, password: string, full_name: string): Promise<User> =>
+    (await api.post<User>("/auth/users", { email, password, full_name })).data,
+  deleteUser: async (id: number): Promise<void> => {
+    await api.delete("/auth/users/" + id);
+  },
+  changePassword: async (current_password: string, new_password: string): Promise<void> => {
+    await api.post("/auth/change-password", { current_password, new_password });
+  },
 };
 
 export const clientsApi =crud<Client, ClientInput>("/clients");

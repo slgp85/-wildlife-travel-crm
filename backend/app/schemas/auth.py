@@ -35,3 +35,10 @@ class UserRead(BaseModel):
 
 class AuthStatus(BaseModel):
     registration_open: bool
+
+
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str = Field(min_length=8)
+
+    _pw = field_validator("new_password")(_check_password)

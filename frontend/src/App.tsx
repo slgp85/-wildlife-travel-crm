@@ -7,6 +7,7 @@ import TripFormPage from "./pages/TripFormPage";
 import BookingsPage from "./pages/BookingsPage";
 import BookingFormPage from "./pages/BookingFormPage";
 import LoginPage from "./pages/LoginPage";
+import UsersPage from "./pages/UsersPage";
 import { useAuth } from "./context/AuthContext";
 
 const links: Array<[string, string]> = [
@@ -14,6 +15,7 @@ const links: Array<[string, string]> = [
   ["/clients", "Clients"],
   ["/trips", "Trips"],
   ["/bookings", "Bookings"],
+  ["/users", "Users"],
 ];
 
 export default function App() {
@@ -63,6 +65,7 @@ export default function App() {
           <Route path="/bookings" element={<BookingsPage />} />
           <Route path="/bookings/new" element={<BookingFormPage />} />
           <Route path="/bookings/:id" element={<BookingFormPage />} />
+          <Route path="/users" element={<UsersPage />} />
         </Routes>
       </main>
     </div>

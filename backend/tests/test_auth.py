@@ -60,3 +60,40 @@ def test_password_rules(anon_client: TestClient) -> None:
     assert anon_client.post(f"{P}/auth/register", json=short).status_code == 422
     long = {**CREDENTIALS, "password": "x" * 73}
     assert anon_client.post(f"{P}/auth/register", json=long).status_code == 422
+
+
+def test_user_management(client: TestClient) -> None:
+    new = {"email": "Staff@Example.com", "password": "staff-pass-1", "full_name": "Staff"}
+    created = client.post(f"{P}/auth/users", json=new)
+    assert created.status_code == 201
+    assert created.json()["email"] == "staff@example.com"
+    assert client.post(f"{P}/auth/users", json=new).status_code == 409
+    assert len(client.get(f"{P}/auth/users").json()) == 2
+    # The new user can log in.
+    creds = {"email": "staff@example.com", "password": "staff-pass-1"}
+    assert client.post(f"{P}/auth/login", json=creds).status_code == 200
+    # Deleting: not yourself, not a missing user, but another user is fine.
+    me_id = client.get(f"{P}/auth/me").json()["id"]
+    assert client.delete(f"{P}/auth/users/{me_id}").status_code == 400
+    assert client.delete(f"{P}/auth/users/9999").status_code == 404
+    assert client.delete(f"{P}/auth/users/{created.json()['id']}").status_code == 204
+    assert len(client.get(f"{P}/auth/users").json()) == 1
+
+
+def test_user_routes_require_login(anon_client: TestClient) -> None:
+    assert anon_client.get(f"{P}/auth/users").status_code == 401
+    assert anon_client.post(f"{P}/auth/users", json={}).status_code == 401
+    assert anon_client.delete(f"{P}/auth/users/1").status_code == 401
+
+
+def test_change_password(client: TestClient) -> None:
+    bad = {"current_password": "wrong-pass-1", "new_password": "brand-new-pass-1"}
+    assert client.post(f"{P}/auth/change-password", json=bad).status_code == 400
+    short = {"current_password": CREDENTIALS["password"], "new_password": "short"}
+    assert client.post(f"{P}/auth/change-password", json=short).status_code == 422
+    good = {"current_password": CREDENTIALS["password"], "new_password": "brand-new-pass-1"}
+    assert client.post(f"{P}/auth/change-password", json=good).status_code == 204
+    old = {"email": CREDENTIALS["email"], "password": CREDENTIALS["password"]}
+    assert client.post(f"{P}/auth/login", json=old).status_code == 401
+    new = {"email": CREDENTIALS["email"], "password": "brand-new-pass-1"}
+    assert client.post(f"{P}/auth/login", json=new).status_code == 200
