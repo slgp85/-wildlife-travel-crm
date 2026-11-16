@@ -11,7 +11,7 @@
 - Backend: FastAPI + Python 3.11+
 - Frontend: React + Vite + TypeScript
 - Database: PostgreSQL + SQLAlchemy
-- Auth: TBD (deferred)
+- Auth: email/password + JWT (users managed in-app)
 - UI: Tailwind + shadcn/ui
 
 ---
